@@ -36,3 +36,20 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
         });
     });
 });
+
+exports.makeChannel = functions.https.onRequest((request, response) => {
+    const channelRef = admin.database().ref("/channels").push();
+    const channel = {
+        id: channelRef.key,
+        name: request.body.name,
+        users: request.body.users
+    };
+    channelRef.set(channel, function(error) {
+        if (error) { 
+            console.log(`data save failed: ${error}`);
+            response.status(500).send(error);
+        } else {
+            response.status(200).send(channel);
+        }
+    });
+});
