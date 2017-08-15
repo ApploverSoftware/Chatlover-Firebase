@@ -4,47 +4,43 @@ const cors = require('cors')();
 
 admin.initializeApp(functions.config().firebase);
 
+const db = admin.database();
+
 exports.sendNotification = functions.database.ref('/channels/{channelId}/messages/{messageId}').onCreate(event => {
-    const channelId = event.params.channelId;
-    const messageId = event.params.messageId;
-    const getChannelPromise = admin.database().ref(`/channels/${channelId}`).once('value');
-    const getMessagePromise = admin.database().ref(`/channels/${channelId}/messages/${messageId}`).once('value');
+    return db.ref(`/channels/${event.params.channelId}`).once('value').then(channelSnap => {
+        const channel = channelSnap.val();
+        const message = event.data.val();
+        const payload = {
+            notification: {
+                title: channel.name,
+                body: message.body
+            },
+            data: {
+                channelId: channel.id,
+                messageId: message.id
+            }
+        };
 
-    return Promise.all([getChannelPromise, getMessagePromise]).then(results => {
-        const channel = results[0].val();
-        const msg = results[1].val();
-        return Promise.all(channel.users.filter(function(u) {
-            return u != msg.sender;
-        }).map(function(u) {
-
-            return admin.database().ref(`/chat_users/${u}`).once('value');
-        })).then(results => {
-            const payload = {
-                notification: {
-                    title: 'Firebase Chat',
-                    body: `${channel.name}`,
-                },
-                data: {
-                    type: ""
-                }
-            };
-            const promises = results.map(function(snap) {
-                return admin.messaging().sendToDevice(snap.val().fcmToken, payload);
-            });
-            return Promise.all(promises).then(response => {console.log("notif sent")});
-
+        return Promise.all(
+            channel.users
+            .filter(u => u != message.sender)
+            .map(u => db.ref(`/chat_users/${u}`).once('value'))
+        ).then(users => {
+            return Promise.all(
+                users.map(u => admin.messaging().sendToDevice(u.val().fcmToken, payload))
+            ).then(_ => console.log("notification sent"));
         });
     });
 });
 
 exports.makeChannel = functions.https.onRequest((request, response) => {
-    const channelRef = admin.database().ref("/channels").push();
+    const channelRef = db.ref("/channels").push();
     const channel = {
         id: channelRef.key,
         name: request.body.name,
         users: request.body.users
     };
-    channelRef.set(channel, function(error) {
+    channelRef.set(channel, error => {
         if (error) { 
             console.log(`data save failed: ${error}`);
             response.status(500).send(error);
