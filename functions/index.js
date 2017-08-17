@@ -22,13 +22,13 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
         };
 
         return Promise.all(
-            channel.users
-            .filter(u => u != message.sender)
-            .map(u => db.ref(`/chat_users/${u}`).once('value'))
-        ).then(users => {
-            return Promise.all(
-                users.map(u => admin.messaging().sendToDevice(u.val().fcmToken, payload))
-            ).then(_ => console.log("notification sent"));
+            Object.keys(channel.users)
+            .map(key => channel.users[key])
+            .filter(u => u.uid != message.sender)
+            .map(u => db.ref(`/chat_users/${u.uid}`).once('value'))
+        ).then(users => { 
+            const tokens = users.map(u => u.val().fcmToken)
+            admin.messaging().sendToDevice(tokens, payload).then(_ => console.log(`notification sent to ${tokens}`));
         });
     });
 });
