@@ -33,19 +33,38 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
     });
 });
 
+exports.indexUserChannels = functions.database.ref('/channels/{channelId}/users').onCreate(event => {
+    const channelId = event.params.channelId
+    db.ref(`/channels/${channelId}/users`).on("child_added", snap => {
+        const uid = snap.val()
+        db.ref(`/user_channel_index/${uid}/${channelId}`).set(channelId)
+    })
+    db.ref(`/channels/${channelId}/users`).on("child_removed", snap => {
+        const uid = snap.val()
+        db.ref(`/user_channel_index/${uid}/${channelId}`).remove()
+    })
+});
+
 exports.makeChannel = functions.https.onRequest((request, response) => {
+    _makeChannel(
+        request.body.name, 
+        request.body.users,
+        c => response.status(200).send(c),
+        e => response.status(500).send(e));
+});
+
+function _makeChannel(name, users, onSuccess, onError) {
     const channelRef = db.ref("/channels").push();
     const channel = {
         id: channelRef.key,
-        name: request.body.name,
-        users: request.body.users
+        name: name,
+        users: users
     };
     channelRef.set(channel, error => {
         if (error) { 
-            console.log(`data save failed: ${error}`);
-            response.status(500).send(error);
+            onError(error)
         } else {
-            response.status(200).send(channel);
+            onSuccess(channel)
         }
     });
-});
+}
