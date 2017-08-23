@@ -73,20 +73,28 @@ exports.makeChannel = functions.https.onRequest((request, response) => {
 });
 
 //Function to call in order to create a channel from any trigger you need
-//name: String, users: {uid:uid,uid2:uid2}, onSuccess,onError are callbacks
+//name: String, users: [uid1, uid2, uid3], onSuccess,onError are callbacks
 function _makeChannel(name, users, onSuccess, onError) {
     const channelRef = db.ref("/channels").push();
-    const channel = {
-        id: channelRef.key,
-        name: name,
-        users: users
-    };
-    channelRef.set(channel, error => {
-        if (error) { 
-            onError(error)
-        } else {
-            onSuccess(channel)
-        }
+    Promise.all(
+        users.map(u=>db.ref(`/chat_users/${u}`).once(`value`))
+    ).then(users => {
+        user_dict = {}
+        users.forEach(u => {
+            user_dict[u.uid] = u
+        })
+        const channel = {
+            id: channelRef.key,
+            name: name,
+            users: user_dict
+        };
+        channelRef.set(channel, error => {
+            if (error) { 
+                onError(error)
+            } else {
+                onSuccess(channel)
+            }
+        });
     });
 }
 
