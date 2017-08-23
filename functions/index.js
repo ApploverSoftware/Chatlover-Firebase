@@ -5,11 +5,9 @@ admin.initializeApp(functions.config().firebase);
 const db = admin.database();
 
 /* YOUR CONSTANTS */
-
 const NAME_REF = `/users/{uid}/nickname`
 const AVATAR_REF = `/users/{uid}/profile_pic`
 const FCM_TOKEN_REF = `/users/{uid}/fcmToken`
-
 /* END OF YOUR CONSTANTS*/
 
 /* FUNCTIONS */
@@ -29,16 +27,11 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
                 messageId: message.id
             }
         };
-
-        return Promise.all(
-            Object.keys(channel.users)
+        const tokens = Object.keys(channel.users)
             .map(key => channel.users[key])
             .filter(u => u.uid != message.sender)
-            .map(u => db.ref(`/chat_users/${u.uid}`).once('value'))
-        ).then(users => { 
-            const tokens = users.map(u => u.val().fcmToken)
-            admin.messaging().sendToDevice(tokens, payload).then(_ => console.log(`notification sent to ${tokens}`));
-        });
+            .map(u => u.fcmToken)
+        admin.messaging().sendToDevice(tokens, payload).then(_ => console.log(`notification sent to ${tokens}`));
     });
 });
 
