@@ -38,7 +38,7 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
 //Denormalizes channel<->user relation data for quicker lookups
 exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWrite(event => {
     const channel = event.data.val()
-    const previous = event.data.previous.val()
+    const previous = event.data.previous
     const lite_channel = {
         id: channel.id,
         users: channel.users,
@@ -52,11 +52,13 @@ exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWr
         lite_channel.messages = {}
         lite_channel.messages[last_msg_key] = channel.messages[last_msg_key]
     }
-    Object.keys(previous.users)
-        .filter(uid => !Object.keys(channel.users).includes(uid))
-        .forEach(uid => {
-            db.ref(`/channel_by_user/${uid}/${channel.id}`).remove()
+    if (previous.exists()) {
+        Object.keys(previous.val().users)
+            .filter(uid => !Object.keys(channel.users).includes(uid))
+            .forEach(uid => {
+                db.ref(`/channel_by_user/${uid}/${channel.id}`).remove()
         })
+    }
     Object.keys(channel.users)
         .forEach(uid => {
             db.ref(`/channel_by_user/${uid}/${channel.id}`).set(lite_channel)
@@ -80,7 +82,7 @@ function _makeChannel(name, users, onSuccess, onError) {
         users.map(u=>db.ref(`/chat_users/${u}`).once(`value`))
     ).then(users => {
         user_dict = {}
-        users.forEach(u => {
+        users.map(u=>u.val()).forEach(u => {
             user_dict[u.uid] = u
         })
         const channel = {
