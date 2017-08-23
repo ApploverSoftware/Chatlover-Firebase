@@ -39,6 +39,14 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
 exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWrite(event => {
     const channel = event.data.val()
     const previous = event.data.previous
+
+    if (!event.data.exists()) {
+        Object.keys(previous.val().users).forEach(uid => {
+            db.ref(`/channel_by_user/${uid}/${channel.id}`).remove()
+        })
+        return;
+    }
+
     const lite_channel = {
         id: channel.id,
         users: channel.users,
