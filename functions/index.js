@@ -43,16 +43,28 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
 });
 
 //Denormalizes channel<->user relation data for quicker lookups
-exports.indexUserChannels = functions.database.ref('/channels/{channelId}/users').onCreate(event => {
-    const channelId = event.params.channelId
-    db.ref(`/channels/${channelId}/users`).on("child_added", snap => {
-        const uid = snap.val()
-        db.ref(`/user_channel_index/${uid}/${channelId}`).set(channelId)
-    })
-    db.ref(`/channels/${channelId}/users`).on("child_removed", snap => {
-        const uid = snap.val()
-        db.ref(`/user_channel_index/${uid}/${channelId}`).remove()
-    })
+exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWrite(event => {
+    const channel = event.data.val()
+    const previous = event.data.previous.val()
+    const last_msg_key = Object.keys(channel.messages).sort().last()
+    const lite_channel = {
+        id: channel.id,
+        users: channel.users,
+        name: channel.name,
+        picture: channel.picture,
+        messages: {
+            last_msg_key : channel.messages[last_msg_key]
+        }
+    }
+    Object.keys(previous.users)
+        .filter(uid => !Object.keys(channel.users).contains(uid))
+        .foreach(uid => {
+            db.ref(`/channel_by_user/${uid}/${channel.id}`).remove()
+        })
+    Object.keys(channel.users)
+        .foreach(uid => {
+            db.ref(`/channel_by_user/${uid}/${channel.id}`).set(lite_channel)
+        })
 });
 
 //HTTPS trigger for channel creation
