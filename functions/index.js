@@ -46,23 +46,26 @@ exports.sendNotification = functions.database.ref('/channels/{channelId}/message
 exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWrite(event => {
     const channel = event.data.val()
     const previous = event.data.previous.val()
-    const last_msg_key = Object.keys(channel.messages).sort().last()
     const lite_channel = {
         id: channel.id,
         users: channel.users,
-        name: channel.name,
-        picture: channel.picture,
-        messages: {
-            last_msg_key : channel.messages[last_msg_key]
-        }
+        name: channel.name
+    }
+    if (channel.picture){
+        lite_channel.picture = channel.picture
+    }
+    if (channel.messages != null && Object.keys(channel.messages).length) {
+        const last_msg_key = Object.keys(channel.messages).sort().pop()
+        lite_channel.messages = {}
+        lite_channel.messages[last_msg_key] = channel.messages[last_msg_key]
     }
     Object.keys(previous.users)
-        .filter(uid => !Object.keys(channel.users).contains(uid))
-        .foreach(uid => {
+        .filter(uid => !Object.keys(channel.users).includes(uid))
+        .forEach(uid => {
             db.ref(`/channel_by_user/${uid}/${channel.id}`).remove()
         })
     Object.keys(channel.users)
-        .foreach(uid => {
+        .forEach(uid => {
             db.ref(`/channel_by_user/${uid}/${channel.id}`).set(lite_channel)
         })
 });
