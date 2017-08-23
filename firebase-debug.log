@@ -1,0 +1,50 @@
+[debug] [2017-08-23T08:31:32.440Z] ----------------------------------------------------------------------
+[debug] [2017-08-23T08:31:32.443Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only functions
+[debug] [2017-08-23T08:31:32.443Z] CLI Version:   3.9.2
+[debug] [2017-08-23T08:31:32.443Z] Platform:      linux
+[debug] [2017-08-23T08:31:32.443Z] Node Version:  v8.3.0
+[debug] [2017-08-23T08:31:32.443Z] Time:          Wed Aug 23 2017 10:31:32 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:32.443Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2017-08-23T08:31:32.456Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2017-08-23T08:31:32.457Z] > authorizing via signed-in user
+[debug] [2017-08-23T08:31:32.458Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/chatlover-2d1c6  
+ Wed Aug 23 2017 10:31:32 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:33.379Z] <<< HTTP RESPONSE 200
+[debug] [2017-08-23T08:31:33.380Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/chatlover-2d1c6/tokens  
+ Wed Aug 23 2017 10:31:33 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:34.170Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Deploying to 'chatlover-2d1c6'...
+[info] 
+[info] i  deploying functions
+[debug] [2017-08-23T08:31:35.699Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "firebase-admin": "~4.2.1",
+    "firebase-functions": "^0.5.7"
+  },
+  "private": true
+}
+[info] i  functions: ensuring necessary APIs are enabled...
+[info] i  runtimeconfig: ensuring necessary APIs are enabled...
+[debug] [2017-08-23T08:31:35.700Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/cloudfunctions.googleapis.com/projectSettings/chatlover-2d1c6?view=CONSUMER_VIEW  
+ Wed Aug 23 2017 10:31:35 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:35.700Z] >>> HTTP REQUEST GET https://servicemanagement.googleapis.com/v1/services/runtimeconfig.googleapis.com/projectSettings/chatlover-2d1c6?view=CONSUMER_VIEW  
+ Wed Aug 23 2017 10:31:35 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:37.111Z] <<< HTTP RESPONSE 200
+[info] ✔  runtimeconfig: all necessary APIs are enabled
+[debug] [2017-08-23T08:31:37.207Z] <<< HTTP RESPONSE 200
+[info] ✔  functions: all necessary APIs are enabled
+[debug] [2017-08-23T08:31:37.208Z] >>> HTTP REQUEST GET https://appengine.googleapis.com/v1/apps/chatlover-2d1c6  
+ Wed Aug 23 2017 10:31:37 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:37.208Z] >>> HTTP REQUEST GET https://apikeys.googleapis.com/v1/projects/chatlover-2d1c6/apiKeys  
+ Wed Aug 23 2017 10:31:37 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:38.509Z] <<< HTTP RESPONSE 200
+[debug] [2017-08-23T08:31:38.651Z] <<< HTTP RESPONSE 200
+[info] i  functions: preparing functions directory for uploading...
+[debug] [2017-08-23T08:31:38.858Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/chatlover-2d1c6/configs  
+ Wed Aug 23 2017 10:31:38 GMT+0200 (CEST)
+[debug] [2017-08-23T08:31:39.322Z] <<< HTTP RESPONSE 200
