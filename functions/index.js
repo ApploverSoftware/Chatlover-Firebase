@@ -42,7 +42,7 @@ exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWr
 
     if (!event.data.exists()) {
         Object.keys(previous.val().users).forEach(uid => {
-            db.ref(`/channel_by_user/${uid}/${channel.id}`).remove()
+            db.ref(`/channel_by_user/${uid}/${previous.val().id}`).remove()
         })
         return;
     }
@@ -72,6 +72,16 @@ exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWr
             db.ref(`/channel_by_user/${uid}/${channel.id}`).set(lite_channel)
         })
 });
+
+// Updates user's data in channels and index upon modification in chat_users
+exports.updateUserInChannels = functions.database.ref(`/chat_users/{user_id}`).onWrite(event => {
+    const user = event.data.val()
+    db.ref(`/channel_by_user/${user.uid}`).once('value').then(channelsDict => {
+        Object.keys(channelsDict.val()).forEach(k => {
+            db.ref(`/channels/${k}/users/${user.uid}`).set(user)
+        })
+    })
+})
 
 //HTTPS trigger for channel creation
 exports.makeChannel = functions.https.onRequest((request, response) => {
