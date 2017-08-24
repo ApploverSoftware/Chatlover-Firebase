@@ -3,7 +3,9 @@ const admin = require('firebase-admin');
 const cors = require('cors')();
 admin.initializeApp(functions.config().firebase);
 const db = admin.database();
+
 const config = require('./config');
+const makeChannel = require('./make_channel')(db);
 
 //Sends push notification to user upon message creation.
 exports.sendNotification = functions.database.ref('/channels/{channelId}/messages/{messageId}').onCreate(event => {
@@ -78,38 +80,12 @@ exports.updateUserInChannels = functions.database.ref(`/chat_users/{user_id}`).o
 
 //HTTPS trigger for channel creation
 exports.makeChannel = functions.https.onRequest((request, response) => {
-    _makeChannel(
+    makeChannel.run(
         request.body.name, 
         request.body.users,
         c => response.status(200).send(c),
         e => response.status(500).send(e));
 });
-
-//Function to call in order to create a channel from any trigger you need
-//name: String, users: [uid1, uid2, uid3], onSuccess,onError are callbacks
-function _makeChannel(name, users, onSuccess, onError) {
-    const channelRef = db.ref("/channels").push();
-    Promise.all(
-        users.map(u=>db.ref(`/chat_users/${u}`).once(`value`))
-    ).then(users => {
-        user_dict = {}
-        users.map(u=>u.val()).forEach(u => {
-            user_dict[u.uid] = u
-        })
-        const channel = {
-            id: channelRef.key,
-            name: name,
-            users: user_dict
-        };
-        channelRef.set(channel, error => {
-            if (error) { 
-                onError(error)
-            } else {
-                onSuccess(channel)
-            }
-        });
-    });
-}
 
 //Automatically updates user between client DB and chatlover's chat_user model
 // !! REMEMBER TO UPDATE config.js BEFORE USE !!
