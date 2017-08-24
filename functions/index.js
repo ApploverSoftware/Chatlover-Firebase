@@ -3,14 +3,7 @@ const admin = require('firebase-admin');
 const cors = require('cors')();
 admin.initializeApp(functions.config().firebase);
 const db = admin.database();
-
-/* YOUR CONSTANTS */
-const NAME_REF = `/users/{uid}/nickname`
-const AVATAR_REF = `/users/{uid}/profile_pic`
-const FCM_TOKEN_REF = `/users/{uid}/fcmToken`
-/* END OF YOUR CONSTANTS*/
-
-/* FUNCTIONS */
+const config = require('./config');
 
 //Sends push notification to user upon message creation.
 exports.sendNotification = functions.database.ref('/channels/{channelId}/messages/{messageId}').onCreate(event => {
@@ -118,28 +111,19 @@ function _makeChannel(name, users, onSuccess, onError) {
     });
 }
 
-//Automatically updates fcmToken between client DB and chatlover's chat_user model
-// !! REMEMBER TO UPDATE FCM_TOKEN_REF BEFORE USE !!
-exports.syncFcmToken = functions.database.ref(FCM_TOKEN_REF).onWrite(event => {
+//Automatically updates user between client DB and chatlover's chat_user model
+// !! REMEMBER TO UPDATE config.js BEFORE USE !!
+exports.syncUser = functions.database.ref(config.USER_REF).onWrite(event => {
     const uid = event.params.uid
-    db.ref(`/chat_users/${uid}/fcmToken`).set(event.data.val())
-    db.ref(`/chat_users/${uid}/uid`).set(uid)
+    if (event.data.exists()) {
+        const user = event.data.val()
+        db.ref(`/chat_users/${uid}`).set({
+            uid: uid,
+            fcmToken: user[config.FCM_TOKEN_KEY],
+            avatar: user[config.AVATAR_KEY],
+            name: user[config.NAME_KEY]
+        })
+    } else {
+        db.ref(`/chat_users/${uid}`).remove()
+    }
 });
-
-//Automatically updates avatar between client DB and chatlover's chat_user model
-// !! REMEMBER TO UPDATE AVATAR_REF BEFORE USE !!
-exports.syncAvatar = functions.database.ref(AVATAR_REF).onWrite(event => {
-    const uid = event.params.uid
-    db.ref(`/chat_users/${uid}/avatar`).set(event.data.val())
-    db.ref(`/chat_users/${uid}/uid`).set(uid)
-});
-
-//Automatically updates name between client DB and chatlover's chat_user model
-// !! REMEMBER TO UPDATE NAME_REF BEFORE USE !!
-exports.syncName = functions.database.ref(NAME_REF).onWrite(event => {
-    const uid = event.params.uid
-    db.ref(`/chat_users/${uid}/name`).set(event.data.val())
-    db.ref(`/chat_users/${uid}/uid`).set(uid)
-});
-
-/* END OF FUNCTIONS */
