@@ -45,16 +45,18 @@ module.exports = (db, admin) => {
             const payload = {
                 notification: notification,
                 data: {
-                    channel: channel,
-                    message: message,
-                    sender: sender
+                    channel: JSON.stringify(channel),
+                    message: JSON.stringify(message),
+                    sender: JSON.stringify(sender)
                 }
             };
             const tokens = Object.keys(channel.users)
                 .map(key => channel.users[key])
                 .filter(u => u.uid != message.sender)
                 .map(u => u.fcmToken)
-            admin.messaging().sendToDevice(tokens, payload).then(_ => console.log(`notification sent to ${tokens}`));
+            if (tokens){
+                admin.messaging().sendToDevice(tokens, payload).then(_ => console.log(`notification sent to ${tokens}`));
+            }
         });
     }
 
