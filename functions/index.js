@@ -5,11 +5,11 @@ admin.initializeApp(functions.config().firebase);
 const db = admin.database();
 
 const config = require('./config');
-const makeChannel = require('./make_channel')(db);
-const sendNotification = require('./send_notification')(db, admin);
-const indexUserChannels = require('./index_user_channels')(db);
-const syncUser = require('./sync_user')(db, config);
-const updateUserInChannel = require('./update_user_in_channel')(db);
+const makeChannel = require('./src/make_channel')(db);
+const sendNotification = require('./src/send_notification')(db, admin);
+const indexUserChannels = require('./src/index_user_channels')(db);
+const syncUser = require('./src/sync_user')(db, config);
+const updateUserInChannel = require('./src/update_user_in_channel')(db);
 
 //Sends push notification to user upon message creation.
 exports.sendNotification = functions.database.ref('/channels/{channelId}/messages/{messageId}').onCreate(event => {
