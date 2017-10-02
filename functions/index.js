@@ -4,16 +4,18 @@ const cors = require('cors')();
 admin.initializeApp(functions.config().firebase);
 const db = admin.database();
 
+// chatlover
+
 const config = require('./config');
 const makeChannel = require('./src/make_channel')(db);
-const sendNotification = require('./src/send_notification')(db, admin);
+const sendChatNotification = require('./src/send_notification')(db, admin);
 const indexUserChannels = require('./src/index_user_channels')(db);
 const syncUser = require('./src/sync_user')(db, config);
 const updateUserInChannel = require('./src/update_user_in_channel')(db);
 
 //Sends push notification to user upon message creation.
-exports.sendNotification = functions.database.ref('/channels/{channelId}/messages/{messageId}').onCreate(event => {
-    sendNotification.run(event);
+exports.sendChatNotification = functions.database.ref('/channels/{channelId}/messages/{messageId}').onCreate(event => {
+    sendChatNotification.run(event);
 });
 
 //Denormalizes channel<->user relation data for quicker lookups
@@ -33,6 +35,20 @@ exports.makeChannel = functions.https.onRequest((request, response) => {
         request.body.users,
         c => response.status(200).send(c),
         e => response.status(500).send(e));
+});
+
+//MakeChannel upon Accept Notification
+exports.makeChannelUponAccept = functions.database.ref('/notifications/{receiverId}/{notificationId}').onCreate(event => {
+    const notification = event.data.val()
+    const receiverId = event.params.receiverId
+    if (notification.type == "dateAccept") {
+      makeChannel.run(
+        "",
+        [receiverId, notification.sender],
+        c => {},
+        e => {}
+      );
+    }
 });
 
 //Automatically updates user between client DB and chatlover's chat_user model

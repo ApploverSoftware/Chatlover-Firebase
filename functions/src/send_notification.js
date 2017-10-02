@@ -42,10 +42,16 @@ module.exports = (db, admin) => {
                     }
                 break;
             }
+            const lite_channel = {}
+            Object.keys(channel).forEach(k => {
+                if (k != "messages")
+                    lite_channel[k] = channel[k]
+            })
             const payload = {
                 notification: notification,
                 data: {
-                    channel: JSON.stringify(channel),
+                    chatlover: "true",
+                    channel: JSON.stringify(lite_channel),
                     message: JSON.stringify(message),
                     sender: JSON.stringify(sender)
                 }
