@@ -18,7 +18,7 @@ function ifChannelDoesntExists(db, users, run) {
     })
 }
 
-module.exports = db => {
+module.exports = (db, config) => {
     var module = {}
     //Function to call in order to create a channel from any trigger you need
     //name: String, users: [uid1, uid2, uid3], onSuccess,onError are callbacks
@@ -37,6 +37,17 @@ module.exports = db => {
                     name: name,
                     users: user_dict
                 };
+                if (config.initMsg) {
+                    const initMsg = {}
+                    initMsg["---init"] = {
+                        body: config.initMsg,
+                        id: "---init",
+                        sender: "init",
+                        type: "txt",
+                        time: Math.floor(Date.now())
+                    }
+                    channel.messages = initMsg
+                }
                 channelRef.set(channel, error => {
                     if (error) { 
                         onError(error)

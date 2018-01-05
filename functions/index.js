@@ -7,7 +7,7 @@ const db = admin.database();
 // chatlover
 
 const config = require('./config');
-const makeChannel = require('./src/make_channel')(db);
+const makeChannel = require('./src/make_channel')(db, config);
 const sendChatNotification = require('./src/send_notification')(db, admin);
 const indexUserChannels = require('./src/index_user_channels')(db);
 const syncUser = require('./src/sync_user')(db, config);
