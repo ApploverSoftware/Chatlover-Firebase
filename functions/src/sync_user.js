@@ -13,9 +13,9 @@ module.exports = (db, config) => {
             chatUser.avatar = user[config.AVATAR_KEY]
         if (user[config.FCM_TOKEN_KEY])
             chatUser.fcmToken = user[config.FCM_TOKEN_KEY]
-        db.ref(`/chat_users/${uid}`).set(chatUser)
+        db.ref(`/chatlover/chat_users/${uid}`).set(chatUser)
     } else {
-        db.ref(`/chat_users/${uid}`).remove()
+        db.ref(`/chatlover/chat_users/${uid}`).remove()
     }
     }
 

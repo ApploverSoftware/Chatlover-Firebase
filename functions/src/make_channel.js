@@ -2,7 +2,7 @@ function ifChannelDoesntExists(db, users, run) {
     var exists = false
     const userList = users.sort().join(':|:')
     Promise.all(
-        users.map(u => db.ref(`/channel_by_user/${u}`).once(`value`))
+        users.map(u => db.ref(`/chatlover/channel_by_user/${u}`).once(`value`))
     ).then(channelLists => {
         channelLists.forEach(channelList => {
             if (channelList.val()) {
@@ -24,9 +24,9 @@ module.exports = (db, config) => {
     //name: String, users: [uid1, uid2, uid3], onSuccess,onError are callbacks
     module.run = (name, users, onSuccess, onError) => {
         ifChannelDoesntExists(db, users, () => {
-            const channelRef = db.ref("/channels").push();
+            const channelRef = db.ref("/chatlover/channels").push();
             Promise.all(
-                users.map(u => db.ref(`/chat_users/${u}`).once(`value`))
+                users.map(u => db.ref(`/chatlover/chat_users/${u}`).once(`value`))
             ).then(users => {
                 user_dict = {}
                 users.map(u => u.val()).forEach(u => {

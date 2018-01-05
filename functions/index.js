@@ -14,17 +14,17 @@ const syncUser = require('./src/sync_user')(db, config);
 const updateUserInChannel = require('./src/update_user_in_channel')(db);
 
 //Sends push notification to user upon message creation.
-exports.sendChatNotification = functions.database.ref('/channels/{channelId}/messages/{messageId}').onCreate(event => {
+exports.sendChatNotification = functions.database.ref('/chatlover/channels/{channelId}/messages/{messageId}').onCreate(event => {
     sendChatNotification.run(event);
 });
 
 //Denormalizes channel<->user relation data for quicker lookups
-exports.indexUserChannels = functions.database.ref('/channels/{channelId}').onWrite(event => {
+exports.indexUserChannels = functions.database.ref('/chatlover/channels/{channelId}').onWrite(event => {
     indexUserChannels.run(event)
 });
 
 // Updates user's data in channels and index upon modification in chat_users
-exports.updateUserInChannel = functions.database.ref(`/chat_users/{user_id}`).onWrite(event => {
+exports.updateUserInChannel = functions.database.ref(`/chatlover/chat_users/{user_id}`).onWrite(event => {
     updateUserInChannel.run(event)
 })
 
@@ -35,20 +35,6 @@ exports.makeChannel = functions.https.onRequest((request, response) => {
         request.body.users,
         c => response.status(200).send(c),
         e => response.status(500).send(e));
-});
-
-//MakeChannel upon Accept Notification
-exports.makeChannelUponAccept = functions.database.ref('/notifications/{receiverId}/{notificationId}').onCreate(event => {
-    const notification = event.data.val()
-    const receiverId = event.params.receiverId
-    if (notification.type == "dateAccept") {
-      makeChannel.run(
-        "",
-        [receiverId, notification.sender],
-        c => {},
-        e => {}
-      );
-    }
 });
 
 //Automatically updates user between client DB and chatlover's chat_user model

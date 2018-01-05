@@ -7,7 +7,7 @@ module.exports = db => {
 
     if (!event.data.exists()) {
         Object.keys(previous.val().users).forEach(uid => {
-            db.ref(`/channel_by_user/${uid}/${previous.val().id}`).remove()
+            db.ref(`/chatlover/channel_by_user/${uid}/${previous.val().id}`).remove()
         })
         return;
     }
@@ -29,12 +29,12 @@ module.exports = db => {
         Object.keys(previous.val().users)
             .filter(uid => !Object.keys(channel.users).includes(uid))
             .forEach(uid => {
-                db.ref(`/channel_by_user/${uid}/${channel.id}`).remove()
+                db.ref(`/chatlover/channel_by_user/${uid}/${channel.id}`).remove()
         })
     }
     Object.keys(channel.users)
         .forEach(uid => {
-            db.ref(`/channel_by_user/${uid}/${channel.id}`).set(lite_channel)
+            db.ref(`/chatlover/channel_by_user/${uid}/${channel.id}`).set(lite_channel)
         })
     }
 

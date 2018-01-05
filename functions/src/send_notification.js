@@ -3,8 +3,8 @@ module.exports = (db, admin) => {
 
     module.run = (event) => {
     	return Promise.all([
-            db.ref(`/channels/${event.params.channelId}`).once('value'),
-            db.ref(`/chat_users/${event.data.val().sender}`).once('value')
+            db.ref(`/chatlover/channels/${event.params.channelId}`).once('value'),
+            db.ref(`/chatlover/chat_users/${event.data.val().sender}`).once('value')
         ]).then(snaps => {
             const channel = snaps[0].val();
             const sender = snaps[1].val()
