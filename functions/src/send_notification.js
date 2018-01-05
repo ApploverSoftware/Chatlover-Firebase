@@ -13,32 +13,32 @@ module.exports = (db, admin) => {
             switch (message.type) {
                 case 'txt':
                     notification = {
-                        title: `${sender.name} pisze...`,
+                        title: `${sender.name} wrote...`,
                         body: message.body
                     }
                 break;
                 case 'loc':
                     notification = {
-                        title: `${sender.name} wysyła swoją lokalizację`,
-                        body: "Kliknij, aby ją zobaczyć"
+                        title: `${sender.name} sent their location`,
+                        body: "Click to see it"
                     }
                 break;
                 case 'img':
                     notification = {
-                        title: `${sender.name} wysyła zdjęcie`,
-                        body: "Kliknij, aby je zobaczyć"
+                        title: `${sender.name} sent a photo`,
+                        body: "Click to see it"
                     }
                 break;
                 case 'vid':
                     notification = {
-                        title: `${sender.name} wysyła wideo`,
-                        body: "Kliknij, aby je obejrzeć"
+                        title: `${sender.name} sent a video`,
+                        body: "Click to see it"
                     }
                 break;
                 case 'mic':
                     notification = {
-                        title: `${sender.name} wysyła wiadomość głosową`,
-                        body: "Kliknij, aby ją odsłuchać"
+                        title: `${sender.name} sent a voice message`,
+                        body: "Click to see it"
                     }
                 break;
             }
