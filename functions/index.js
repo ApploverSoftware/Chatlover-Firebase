@@ -1,7 +1,5 @@
-const chatlover = require('./chatlover');
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp(functions.config().firebase);
 
-exports.sendChatNotification = chatlover.sendChatNotification
-exports.indexUserChannels = chatlover.indexUserChannels
-exports.updateUserInChannel = chatlover.updateUserInChannel
-exports.makeChannel = chatlover.makeChannel
-exports.syncUser = chatlover.syncUser
+require('./chatlover/init')(exports);
